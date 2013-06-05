@@ -183,6 +183,43 @@ module Cupertino
         profiles
       end
 
+      def add_profile(name)
+        # return if devices.empty?
+
+        get('https://developer.apple.com/account/ios/profile/profileCreate.action')
+
+        begin
+          # file = Tempfile.new(%w(devices .txt))
+          # file.write("Device ID\tDevice Name")
+          # devices.each do |device|
+          #   file.write("\n#{device.udid}\t#{device.name}")
+          # end
+          # file.rewind
+
+          form = page.form_with(:name => 'profileImport') or raise UnexpectedContentError
+
+          # upload = form.file_uploads.first
+          # upload.file_name = file.path
+          form.radiobuttons.first.check()
+          puts form.radiobuttons
+          # form.submit
+          # 
+          # if form = page.form_with(:name => 'profileSubmit')
+          #   form.method = 'POST'
+          #   form.field_with(:name => 'deviceNames').name = 'name'
+          #   form.field_with(:name => 'deviceNumbers').name = 'deviceNumber'
+          #   form.submit
+          # elsif form = page.form_with(:name => 'deviceImport')
+          #   form.submit
+          # else
+          #   raise UnexpectedContentError
+          # end
+
+          # ensure
+          # file.close!
+        end
+      end
+
       def download_profile(profile)
         list_profiles(profile.type)
 

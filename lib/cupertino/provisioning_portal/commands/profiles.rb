@@ -28,7 +28,41 @@ command :'profiles:list' do |c|
   end
 end
 
-alias_command :profiles, :'profiles:list'
+command :'profiles:add' do |c|
+  c.syntax = 'ios profiles:add'
+  c.summary = 'Adds a new Provisioning Profile'
+  c.description = ''
+
+  c.action do |args, options|
+    puts args
+    puts options
+    type = args.first.downcase.to_sym rescue nil
+    agent.add_profile("test")
+    # profiles = try{agent.add_profile("test")}
+
+    # say_warning "No #{type} provisioning profiles found." and abort if profiles.empty?
+    # 
+    # table = Terminal::Table.new do |t|
+    #   t << ["Profile", "App ID", "Status"]
+    #   t.add_separator
+    #   profiles.each do |profile|
+    #     status = case profile.status
+    #              when "Invalid"
+    #                profile.status.red
+    #              else
+    #                profile.status.green
+    #              end
+    # 
+    #     t << [profile.name, profile.app_id, status]
+    #   end
+    # end
+
+    puts table
+  end
+end
+
+
+alias_command :profiles, :'profiles:list', :'profiles:add'
 
 command :'profiles:download' do |c|
   c.syntax = 'ios profiles:download'
