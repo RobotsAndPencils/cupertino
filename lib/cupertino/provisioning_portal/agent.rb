@@ -183,7 +183,7 @@ module Cupertino
         profiles
       end
 
-      def add_profile(name)
+      def add_profile(name, type = :limited) # :limited :inhouse :adhoc
         # return if devices.empty?
 
         get('https://developer.apple.com/account/ios/profile/profileCreate.action')
@@ -195,13 +195,43 @@ module Cupertino
           #   file.write("\n#{device.udid}\t#{device.name}")
           # end
           # file.rewind
-
-          form = page.form_with(:name => 'profileImport') or raise UnexpectedContentError
-
+          
+          # have to create an app id first
+          
+          form = page.form_with(:action => 'https://developer.apple.com/account/ios/profile/profileCreate.action') or raise UnexpectedContentError          
+          form.radiobuttons_with(:value => type)[0].check          
+          form.action = 'https://developer.apple.com/account/ios/profile/profileCreateApp.action' # would be lovely to get this from the form's successurl attribute
+          form.method = 'GET'
+          page = form.submit
+          pp page
+          
+          # page.links.each do |link|
+          #   puts link.dom_class()
+          #   if link.dom_class == 'button small blue right submit'
+          #     puts "---> clicking"
+          #     secondpage = link.click()
+          #     pp secondpage
+          #   end
+          # end
+          
+          # pp page
+          
+          # print page.link_with(:dom_class => 'button small blue right submit')
+          # page =  page.link_with(:dom_class => 'button small blue right submit').click
+          
+          # page.buttons.each do |button|
+          #   pp button
+          # end
+          
+          # page = submit(form)
+          # pp page
+                    
+          # print page.forms()
+          
           # upload = form.file_uploads.first
           # upload.file_name = file.path
-          form.radiobuttons.first.check()
-          puts form.radiobuttons
+          # form.radiobuttons.first.check()
+          # puts form.radiobuttons
           # form.submit
           # 
           # if form = page.form_with(:name => 'profileSubmit')
@@ -301,6 +331,82 @@ module Cupertino
 
         app_ids
       end
+
+      def add_app_id(name, bundle_id)
+        # return if devices.empty?
+
+        get('https://developer.apple.com/account/ios/identifiers/bundle/bundleCreate.action')
+
+        begin
+          # file = Tempfile.new(%w(devices .txt))
+          # file.write("Device ID\tDevice Name")
+          # devices.each do |device|
+          #   file.write("\n#{device.udid}\t#{device.name}")
+          # end
+          # file.rewind
+          
+          # have to create an app id first
+          
+          form = page.form_with(:name => 'bundleSave') or raise UnexpectedContentError          
+          form.appIdName = name
+          form.explicitIdentifier = bundle_id
+          pp form
+          puts '-------'
+          form.action = 'https://developer.apple.com/account/ios/identifiers/bundle/bundleConfirm.action' # would be lovely to get this from the form's successurl attribute
+          form.method = 'GET'
+          page = form.submit
+          sleep(5)
+          form = page.form_with(:name => 'bundleSubmit') or raise UnexpectedContentError
+          form.action = '/account/ios/identifiers/bundle/bundleComplete.action' # would be lovely to get this from the form's successurl attribute
+          form.method = 'GET'
+          page = form.submit
+          pp page
+          
+          # page.links.each do |link|
+          #   puts link.dom_class()
+          #   if link.dom_class == 'button small blue right submit'
+          #     puts "---> clicking"
+          #     secondpage = link.click()
+          #     pp secondpage
+          #   end
+          # end
+          
+          # pp page
+          
+          # print page.link_with(:dom_class => 'button small blue right submit')
+          # page =  page.link_with(:dom_class => 'button small blue right submit').click
+          
+          # page.buttons.each do |button|
+          #   pp button
+          # end
+          
+          # page = submit(form)
+          # pp page
+                    
+          # print page.forms()
+          
+          # upload = form.file_uploads.first
+          # upload.file_name = file.path
+          # form.radiobuttons.first.check()
+          # puts form.radiobuttons
+          # form.submit
+          # 
+          # if form = page.form_with(:name => 'profileSubmit')
+          #   form.method = 'POST'
+          #   form.field_with(:name => 'deviceNames').name = 'name'
+          #   form.field_with(:name => 'deviceNumbers').name = 'deviceNumber'
+          #   form.submit
+          # elsif form = page.form_with(:name => 'deviceImport')
+          #   form.submit
+          # else
+          #   raise UnexpectedContentError
+          # end
+
+          # ensure
+          # file.close!
+        end
+      end
+
 
       private
 

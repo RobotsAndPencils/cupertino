@@ -34,10 +34,10 @@ command :'profiles:add' do |c|
   c.description = ''
 
   c.action do |args, options|
-    puts args
-    puts options
+    # puts args
+    # puts options
     type = args.first.downcase.to_sym rescue nil
-    agent.add_profile("test")
+    agent.add_profile('test', 'limited')
     # profiles = try{agent.add_profile("test")}
 
     # say_warning "No #{type} provisioning profiles found." and abort if profiles.empty?
@@ -57,12 +57,12 @@ command :'profiles:add' do |c|
     #   end
     # end
 
-    puts table
+    # puts table
   end
 end
 
 
-alias_command :profiles, :'profiles:list', :'profiles:add'
+alias_command :profiles, :'profiles:list'
 
 command :'profiles:download' do |c|
   c.syntax = 'ios profiles:download'
