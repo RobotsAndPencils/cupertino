@@ -193,10 +193,6 @@ module Cupertino
                             end
 
         post(profile_data_url)
-        @profile_csrf_headers = {
-          'csrf' => page.response['csrf'],
-          'csrf_ts' => page.response['csrf_ts']
-        }
 
         @profile_csrf_headers = {
           'csrf' => page.response['csrf'],
@@ -220,6 +216,35 @@ module Cupertino
         end
 
         profiles
+      end
+
+
+
+      def touch_profile(profile)
+        successful = false
+        if profile.edit_url
+          url = profile.edit_url
+
+          begin
+            page = get(url)
+            form = page.form_with(:name => 'profileEdit')
+
+            adssuv = cookies.find{|cookie| cookie.name == 'adssuv'}
+            form.add_field!('adssuv-value', Mechanize::Util::uri_unescape(adssuv.value))
+            form.add_field!('adssuv', Mechanize::Util::uri_unescape(adssuv.value))
+
+            form.method = 'POST'
+
+            form.submit(nil, @profile_csrf_headers)
+            #form.submit
+
+            successful = true
+          rescue
+            successful = false
+          end
+        end
+
+        successful
       end
 
       def download_profile(profile)

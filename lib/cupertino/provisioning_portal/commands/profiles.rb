@@ -239,3 +239,46 @@ command :'profiles:manage:devices:list' do |c|
 end
 
 alias_command :'profiles:devices:list', :'profiles:manage:devices:list'
+
+
+command :'profiles:update:all' do |c|
+  c.syntax = 'ios profiles:update:cert:all'
+  c.summary = 'Updates the Certificate for all Provisioning Profiles!'
+  c.description = ''
+
+  c.action do |args, options|
+    type = args.first.downcase.to_sym rescue nil
+    certificate_id = args[1]
+    profiles = try{agent.list_profiles(type ||= :development)}
+    profiles = profiles.find_all{|profile| profile.identifier != nil }
+
+    say_warning "No inactive #{type} profiles found." and abort if profiles.empty?
+    profiles.each do |profile|
+      if agent.touch_profile(profile)
+        say_ok "Successfully updated '#{profile.name}'"
+      else
+        say_error "Could not update '#{profile.name}'"
+      end
+    end
+  end
+end
+
+command :'profiles:update' do |c|
+  c.syntax = 'ios profiles:update'
+  c.summary = 'Updates a Provisioning Profile'
+  c.description = ''
+
+  c.action do |args, options|
+    type = args.first.downcase.to_sym rescue nil
+    profiles = try{agent.list_profiles(type ||= :development)}
+    profiles = profiles.find_all{|profile| profile.status != 'Active' && profile.identifier != nil }
+
+    say_warning "No inactive #{type} profiles found." and abort if profiles.empty?
+    profile = choose "Select a profile to update:", *profiles
+    if agent.touch_profile(profile)
+      say_ok "Successfully updated '#{profile.name}'"
+    else
+      say_error "Could not update '#{profile.name}'"
+    end
+  end
+end
